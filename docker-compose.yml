@@ -1,0 +1,29 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.5
+    container_name: keycloak
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    command: start-dev
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    ports:
+    - "5000:8080"
+  
+  postresql:
+    image: postgres
+    container_name: fittrack-db
+    shm_size: 128mb
+    environment:
+      - POSTGRES_PASSWORD=postgres-password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=fittrack
+    volumes:
+      - fittrack_db_data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+
+volumes:
+  keycloak_data:
+  fittrack_db_data:
