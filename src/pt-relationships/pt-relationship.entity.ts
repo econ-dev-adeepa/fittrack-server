@@ -29,4 +29,13 @@ export class PTRelationship {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ nullable: true })
+  preferredDays: string;
+
+  @Column({ nullable: true })
+  preferredTime: string;
+
+  @Column({ nullable: true })
+  notes: string;
 }

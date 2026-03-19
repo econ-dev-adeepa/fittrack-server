@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreatePTRequestDto {
   @IsString()
@@ -8,4 +8,16 @@ export class CreatePTRequestDto {
   @IsString()
   @IsNotEmpty()
   gymId: string;
+
+  @IsString()
+  @IsOptional()
+  preferredDays?: string;
+
+  @IsString()
+  @IsOptional()
+  preferredTime?: string;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }
