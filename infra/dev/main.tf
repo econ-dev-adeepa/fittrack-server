@@ -8,17 +8,17 @@ terraform {
 }
 
 provider "keycloak" {
-  client_id = "admin-cli"
-  username  = "admin"
-  password  = "admin"
-  url       = "http://localhost:5000"
+  client_id = var.keycloak_client_id
+  username  = var.keycloak_username
+  password  = var.keycloak_password
+  url       = var.keycloak_url
 }
 
 resource "keycloak_realm" "realm" {
-  realm             = "fittrack-test-realm"
+  realm             = var.realm_name
   enabled           = true
-  display_name      = "FitTrack Test Realm"
-  display_name_html = "<b>FitTrack Test Realm</b>"
+  display_name      = var.realm_display_name
+  display_name_html = "<b>${var.realm_display_name}</b>"
 
   login_theme = "keycloak"
 

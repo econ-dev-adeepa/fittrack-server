@@ -1,0 +1,6 @@
+keycloak_client_id = "admin-cli"
+keycloak_username  = "admin"
+keycloak_password  = "admin"
+keycloak_url       = "http://localhost:5000"
+realm_name         = "fittrack-test-realm"
+realm_display_name = "FitTrack Test Realm"
