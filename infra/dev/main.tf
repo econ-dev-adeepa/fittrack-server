@@ -70,7 +70,7 @@ resource "keycloak_realm_user_profile" "user_profile" {
     validator {
       name = "options"
       config = {
-        options = jsonencode(["Customer", "Coach", "Gym Admin"])
+        options = jsonencode(["customer", "coach", "gym_admin"])
       }
     }
     annotations = {
