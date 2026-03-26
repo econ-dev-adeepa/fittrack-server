@@ -9,6 +9,7 @@ import { PTRelationship } from './pt-relationships/pt-relationship.entity';
 import { ProgramsModule } from './programs/programs.module';
 import { PTRelationshipsModule } from './pt-relationships/pt-relationships.module';
 import { AffiliationsModule } from './affiliations/affiliations.module';
+import { GymsModule } from './gyms/gyms.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,6 +32,7 @@ import { AffiliationsModule } from './affiliations/affiliations.module';
     ProgramsModule,
     PTRelationshipsModule,
     AffiliationsModule,
+    GymsModule,
   ],
 })
 export class AppModule {}
