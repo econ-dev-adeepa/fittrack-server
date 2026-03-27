@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { GymsService } from './gyms.service';
 import CreateGymDto from './dto/create-gym.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -12,8 +12,17 @@ export class GymsController {
     constructor(private readonly gymService: GymsService) {}
 
     @Get()
-    findAll() {
-        return this.gymService.findAll();
+    findAll(@Request() req: any, @Query('is_admin') is_admin?: boolean) {
+        if (is_admin === undefined) is_admin = false;
+        if (!is_admin) {
+            return this.gymService.findAll();
+        }
+
+        if (!req.user || req.user.user_role !== UserRole.GYM_ADMIN) {
+            throw new UnauthorizedException('You do not have permission to access this resource');
+        }
+
+        return this.gymService.findOwnedGyms(req.user.sub);
     }
 
     @Post()

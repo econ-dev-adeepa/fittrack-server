@@ -26,4 +26,8 @@ export class GymsService {
     async findAll(): Promise<Gym[]> {
         return this.gymsRepository.find();
     }
+
+    async findOwnedGyms(adminId: string): Promise<Gym[]> {
+        return this.gymsRepository.find({ where: { createdByAdminId: adminId } });
+    }
 }
