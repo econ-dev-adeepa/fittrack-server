@@ -3,22 +3,28 @@ import { CanActivate, ExecutionContext } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 
-const client = jwksClient({
-  jwksUri: process.env.KEYCLOAK_JWKS_URI ||
-    'http://localhost:5000/realms/fittrack/protocol/openid-connect/certs',
-});
-
-function getKey(header: any, callback: any) {
-  client.getSigningKey(header.kid, (err, key) => {
-    if (err) return callback(err);
-    if (!key) return callback(new Error('Signing key not found'));
-    const signingKey = key.getPublicKey();
-    callback(null, signingKey);
-  });
-}
-
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+  private client: jwksClient.JwksClient;
+
+  private getClient() {
+    if (!this.client) {
+      this.client = jwksClient({
+        jwksUri: process.env.KEYCLOAK_JWKS_URI!,
+      });
+    }
+    return this.client;
+  }
+
+  private getKey(header: any, callback: any) {
+    this.getClient().getSigningKey(header.kid, (err, key) => {
+      if (err) return callback(err);
+      if (!key) return callback(new Error('Signing key not found'));
+      const signingKey = key.getPublicKey();
+      callback(null, signingKey);
+    });
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers['authorization'];
@@ -31,7 +37,7 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const decoded = await new Promise((resolve, reject) => {
-        jwt.verify(token, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
+        jwt.verify(token, this.getKey.bind(this), { algorithms: ['RS256'] }, (err, decoded) => {
           if (err) reject(err);
           else resolve(decoded);
         });
