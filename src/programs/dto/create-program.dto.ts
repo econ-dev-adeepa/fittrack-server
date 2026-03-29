@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateProgramDto {
   @IsString()
@@ -16,4 +16,24 @@ export class CreateProgramDto {
   @IsString()
   @IsOptional()
   schedule?: string;
+
+  @IsNumber()
+  @IsOptional()
+  sessionsPerWeek?: number;
+
+  @IsNumber()
+  @IsOptional()
+  sessionDuration?: number;
+
+  @IsNumber()
+  @IsOptional()
+  totalSlots?: number;
+
+  @IsString()
+  @IsOptional()
+  difficulty?: string;
+
+  @IsNumber()
+  @IsOptional()
+  programDuration?: number;
 }
