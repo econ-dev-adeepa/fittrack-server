@@ -35,4 +35,19 @@ export class Program {
 
   @UpdateDateColumn()
   updatedAt: Date;
-}
+
+  @Column({ nullable: true })
+  sessionsPerWeek: number;
+
+  @Column({ nullable: true })
+  sessionDuration: number; // in minutes
+
+  @Column({ nullable: true })
+  totalSlots: number;
+
+  @Column({ nullable: true })
+  difficulty: string; // BEGINNER, INTERMEDIATE, ADVANCED
+
+  @Column({ nullable: true })
+  programDuration: number; // in weeks
+  }
