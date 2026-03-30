@@ -31,26 +31,21 @@ export class AffiliationsService {
     return this.affiliationsRepository.save(affiliation);
   }
 
-  // FR-4.03 Get approved coaches in a gym
-  async findApprovedCoachesByGym(gymId: string): Promise<GymAffiliation[]> {
+  // Get approved affiliations by type in a gym
+  async findActiveByType(gymId: string, type: AffiliationType): Promise<GymAffiliation[]> {
     return this.affiliationsRepository.find({
       where: {
         gymId,
-        type: AffiliationType.COACH,
+        type,
         status: AffiliationStatus.APPROVED,
       },
     });
   }
 
-  // Gym Admin views by type
-  async findByGymAndType(gymId: string, type: AffiliationType): Promise<GymAffiliation[]> {
-    return this.affiliationsRepository.find({ where: { gymId, type } });
-  }
-
-  // Gym Admin views pending requests
-  async findPending(gymId: string): Promise<GymAffiliation[]> {
+  // Gym Admin views pending requests by type
+  async findPendingByType(gymId: string, type: AffiliationType): Promise<GymAffiliation[]> {
     return this.affiliationsRepository.find({
-      where: { gymId, status: AffiliationStatus.PENDING },
+      where: { gymId, type, status: AffiliationStatus.PENDING },
     });
   }
 

@@ -23,23 +23,30 @@ export class AffiliationsController {
   }
 
   // FR-4.03 Customer views approved coaches in their gym
-  @Get('gym/:gymId/coaches')
+  @Get('gym/:gymId/coaches/approved')
   getApprovedCoaches(@Param('gymId') gymId: string) {
-    return this.affiliationsService.findApprovedCoachesByGym(gymId);
+    return this.affiliationsService.findActiveByType(gymId, AffiliationType.COACH);
   }
 
-  // Gym Admin views all customers
-  @Get('gym/:gymId/customers')
+  // Gym Admin views all approved customers
+  @Get('gym/:gymId/customers/approved')
   @Roles(UserRole.GYM_ADMIN)
   getCustomers(@Param('gymId') gymId: string) {
-    return this.affiliationsService.findByGymAndType(gymId, AffiliationType.CUSTOMER);
+    return this.affiliationsService.findActiveByType(gymId, AffiliationType.CUSTOMER);
   }
 
-  // Gym Admin views pending requests
-  @Get('gym/:gymId/pending')
+  // Gym Admin views pending coaches requests
+  @Get('gym/:gymId/coaches/pending')
   @Roles(UserRole.GYM_ADMIN)
-  getPending(@Param('gymId') gymId: string) {
-    return this.affiliationsService.findPending(gymId);
+  getPendingCoaches(@Param('gymId') gymId: string) {
+    return this.affiliationsService.findPendingByType(gymId, AffiliationType.COACH);
+  }
+
+  // Gym Admin views pending customers requests
+  @Get('gym/:gymId/customers/pending')
+  @Roles(UserRole.GYM_ADMIN)
+  getPendingCustomers(@Param('gymId') gymId: string) {
+    return this.affiliationsService.findPendingByType(gymId, AffiliationType.CUSTOMER);
   }
 
   // Gym Admin approves or rejects
