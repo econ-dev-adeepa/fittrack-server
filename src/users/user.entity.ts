@@ -13,10 +13,7 @@ export class User {
   id: string;
 
   @Column()
-  firstName: string;
-
-  @Column()
-  lastName: string;
+  username: string;
 
   @Column({ unique: true })
   email: string;
@@ -24,12 +21,6 @@ export class User {
   @Column({ type: 'enum', enum: UserRole })
   role: UserRole;
 
-  @Column({ nullable: true })
-  phone: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
   @UpdateDateColumn()
-  updatedAt: Date;
+  lastUpdated: Date;
 }
