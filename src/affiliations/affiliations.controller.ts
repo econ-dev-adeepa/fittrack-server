@@ -9,6 +9,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../users/user.entity';
 import { AffiliationType } from './gym-affiliation.entity';
+import { RefreshUserCache } from 'src/common/decorators/user-cache.decorator';
 
 @Controller('affiliations')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -18,6 +19,7 @@ export class AffiliationsController {
   // Coach or Customer submits gym affiliation request
   @Post()
   @Roles(UserRole.COACH, UserRole.CUSTOMER)
+  @RefreshUserCache()
   create(@Body() createAffiliationDto: CreateAffiliationDto, @Request() req: any) {
     return this.affiliationsService.create(createAffiliationDto, req.user.sub);
   }
