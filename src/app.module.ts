@@ -10,6 +10,7 @@ import { ProgramsModule } from './programs/programs.module';
 import { PTRelationshipsModule } from './pt-relationships/pt-relationships.module';
 import { AffiliationsModule } from './affiliations/affiliations.module';
 import { GymsModule } from './gyms/gyms.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RefreshUserInterceptor } from './common/interceptors/refreshuser.interceptor';
 import { UsersModule } from './users/users.module';
 @Module({
@@ -36,6 +37,12 @@ import { UsersModule } from './users/users.module';
     AffiliationsModule,
     GymsModule,
     UsersModule,
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RefreshUserInterceptor,
+    },
   ],
 })
 export class AppModule {}
