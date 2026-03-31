@@ -11,6 +11,9 @@ import { PTRelationshipsModule } from './pt-relationships/pt-relationships.modul
 import { AffiliationsModule } from './affiliations/affiliations.module';
 import { GymsModule } from './gyms/gyms.module';
 import { TrainingPlansModule } from './training-plans/training-plans.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { RefreshUserInterceptor } from './common/interceptors/refreshuser.interceptor';
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,6 +38,13 @@ import { TrainingPlansModule } from './training-plans/training-plans.module';
     AffiliationsModule,
     GymsModule,
     TrainingPlansModule,
+    UsersModule,
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RefreshUserInterceptor,
+    },
   ],
 })
 export class AppModule {}
