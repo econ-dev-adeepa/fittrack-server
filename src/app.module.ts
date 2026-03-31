@@ -10,6 +10,7 @@ import { ProgramsModule } from './programs/programs.module';
 import { PTRelationshipsModule } from './pt-relationships/pt-relationships.module';
 import { AffiliationsModule } from './affiliations/affiliations.module';
 import { GymsModule } from './gyms/gyms.module';
+import { TrainingPlansModule } from './training-plans/training-plans.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RefreshUserInterceptor } from './common/interceptors/refreshuser.interceptor';
 import { UsersModule } from './users/users.module';
@@ -36,6 +37,7 @@ import { UsersModule } from './users/users.module';
     PTRelationshipsModule,
     AffiliationsModule,
     GymsModule,
+    TrainingPlansModule,
     UsersModule,
   ],
   providers: [
