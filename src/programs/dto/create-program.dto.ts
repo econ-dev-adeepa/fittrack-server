@@ -17,23 +17,23 @@ export class CreateProgramDto {
   @IsOptional()
   schedule?: string;
 
-  @IsNumber()
-  @IsOptional()
-  sessionsPerWeek?: number;
+  // @IsNumber()
+  // @IsOptional()
+  // sessionsPerWeek?: number;
 
-  @IsNumber()
-  @IsOptional()
-  sessionDuration?: number;
+  // @IsNumber()
+  // @IsOptional()
+  // sessionDuration?: number;
 
-  @IsNumber()
-  @IsOptional()
-  totalSlots?: number;
+  // @IsNumber()
+  // @IsOptional()
+  // totalSlots?: number;
 
-  @IsString()
-  @IsOptional()
-  difficulty?: string;
+  // @IsString()
+  // @IsOptional()
+  // difficulty?: string;
 
-  @IsNumber()
-  @IsOptional()
-  programDuration?: number;
+  // @IsNumber()
+  // @IsOptional()
+  // programDuration?: number;
 }

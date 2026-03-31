@@ -10,6 +10,7 @@ import { ProgramsModule } from './programs/programs.module';
 import { PTRelationshipsModule } from './pt-relationships/pt-relationships.module';
 import { AffiliationsModule } from './affiliations/affiliations.module';
 import { GymsModule } from './gyms/gyms.module';
+import { TrainingPlansModule } from './training-plans/training-plans.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -33,6 +34,7 @@ import { GymsModule } from './gyms/gyms.module';
     PTRelationshipsModule,
     AffiliationsModule,
     GymsModule,
+    TrainingPlansModule,
   ],
 })
 export class AppModule {}
