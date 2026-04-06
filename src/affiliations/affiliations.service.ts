@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GymAffiliation, AffiliationStatus, AffiliationType } from './gym-affiliation.entity';
@@ -69,4 +69,13 @@ export class AffiliationsService {
   async findByUser(userId: string): Promise<GymAffiliation[]> {
     return this.affiliationsRepository.find({ where: { userId } });
   }
+
+  // User leaves a gym or cancels pending request
+  async remove(id: string, userId: string): Promise<void> {
+    const affiliation = await this.affiliationsRepository.findOne({ where: { id } });
+    if (!affiliation) throw new NotFoundException(`Affiliation #${id} not found`);
+    if (affiliation.userId !== userId) throw new ForbiddenException('Not your affiliation');
+    await this.affiliationsRepository.remove(affiliation);
+}
+  
 }
