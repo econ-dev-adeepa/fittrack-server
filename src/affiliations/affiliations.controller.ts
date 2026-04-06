@@ -1,5 +1,6 @@
 import {
   Controller, Get, Post, Patch, Body, Param, UseGuards, Request,
+  Delete,
 } from '@nestjs/common';
 import { AffiliationsService } from './affiliations.service';
 import { CreateAffiliationDto } from './dto/create-affiliation.dto';
@@ -63,4 +64,10 @@ export class AffiliationsController {
   getMyAffiliations(@Request() req: any) {
     return this.affiliationsService.findByUser(req.user.sub);
   }
+
+  @Delete(':id')
+  @Roles(UserRole.COACH, UserRole.CUSTOMER)
+  async remove(@Param('id') id: string, @Request() req: any) {
+    return this.affiliationsService.remove(id, req.user.sub);
+}
 }
