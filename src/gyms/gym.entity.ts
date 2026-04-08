@@ -20,6 +20,18 @@ export class Gym {
   @Column()
   createdByAdminId: string;
 
+  @Column({ nullable: true })
+  operationalDays: string;
+
+  @Column({ nullable: true })
+  openTime: string;
+
+  @Column({ nullable: true })
+  closeTime: string;
+
+  @Column({ nullable: true })
+  capacity: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

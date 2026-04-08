@@ -14,6 +14,7 @@ import { TrainingPlansModule } from './training-plans/training-plans.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RefreshUserInterceptor } from './common/interceptors/refreshuser.interceptor';
 import { UsersModule } from './users/users.module';
+import { TrainingPlan } from './training-plans/training-plan.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -29,7 +30,7 @@ import { UsersModule } from './users/users.module';
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_NAME'),
-        entities: [User, Gym, GymAffiliation, Program, PTRelationship],
+        entities: [User, Gym, GymAffiliation, Program, PTRelationship, TrainingPlan],
         synchronize: true,
       }),
     }),
@@ -39,6 +40,7 @@ import { UsersModule } from './users/users.module';
     GymsModule,
     TrainingPlansModule,
     UsersModule,
+    TrainingPlansModule,
   ],
   providers: [
     {

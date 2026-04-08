@@ -1,5 +1,6 @@
 import {
   Controller, Get, Post, Patch, Body, Param, UseGuards, Request,
+  NotFoundException,
 } from '@nestjs/common';
 import { ProgramsService } from './programs.service';
 import { CreateProgramDto } from './dto/create-program.dto';
@@ -53,5 +54,43 @@ export class ProgramsController {
   @Roles(UserRole.COACH)
   getMyPrograms(@Request() req: any) {
     return this.programsService.findByCoach(req.user.sub);
+  }
+
+  @Get(':id/conflicts')
+  @Roles(UserRole.GYM_ADMIN)
+  async checkConflicts(@Param('id') id: string) {
+    const program = await this.programsService.findOne(id);
+    if (!program) throw new NotFoundException();
+    const schedule = program.schedule || '';
+    const parts = schedule.split(' ');
+    const days = parts[0]?.replace(/\//g, ',') || '';
+    // const time = parts.slice(1).join(' ');
+    const time = parts[1] + ' ' + parts[2];
+    return this.programsService.checkConflicts(
+      program.gymId, days, time, program.totalSlots || 0
+    );
+  }
+
+  // Gym Admin rejects with proposal
+  @Patch(':id/reject-with-proposal')
+  @Roles(UserRole.GYM_ADMIN)
+  rejectWithProposal(@Param('id') id: string, @Body() dto: {
+    rejectionReason: string;
+    proposedDays: string;
+    proposedTime: string;
+    proposedSlots: number;
+  }) {
+    return this.programsService.rejectWithProposal(id, dto);
+  }
+
+  // Coach responds to proposal
+  @Patch(':id/respond-to-proposal')
+  @Roles(UserRole.COACH)
+  respondToProposal(
+    @Param('id') id: string,
+    @Body() dto: { accept: boolean },
+    @Request() req: any,
+  ) {
+    return this.programsService.respondToProposal(id, req.user.sub, dto.accept);
   }
 }

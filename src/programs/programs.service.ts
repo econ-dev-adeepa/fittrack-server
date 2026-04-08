@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Program, ProgramStatus } from './program.entity';
+import { Gym } from '../gyms/gym.entity';
 import { CreateProgramDto } from './dto/create-program.dto';
 import { UpdateProgramStatusDto } from './dto/update-program.dto';
 
@@ -10,6 +11,9 @@ export class ProgramsService {
   constructor(
     @InjectRepository(Program)
     private programsRepository: Repository<Program>,
+
+    @InjectRepository(Gym)
+    private gymsRepository: Repository<Gym>,
   ) {}
 
   // FR-3.03 Coach creates a program
@@ -46,6 +50,43 @@ export class ProgramsService {
     return this.programsRepository.save(program);
   }
 
+  // Gym Admin rejects with proposal
+  async rejectWithProposal(id: string, dto: {
+    rejectionReason: string;
+    proposedDays: string;
+    proposedTime: string;
+    proposedSlots: number;
+  }): Promise<Program> {
+    const program = await this.programsRepository.findOne({ where: { id } });
+    if (!program) throw new NotFoundException(`Program #${id} not found`);
+    program.status = ProgramStatus.REJECTED_WITH_PROPOSAL;
+    program.rejectionReason = dto.rejectionReason;
+    program.proposedDays = dto.proposedDays;
+    program.proposedTime = dto.proposedTime;
+    program.proposedSlots = dto.proposedSlots;
+    return this.programsRepository.save(program);
+  }
+
+  // Coach responds to proposal
+  async respondToProposal(id: string, coachId: string, accept: boolean): Promise<Program> {
+    const program = await this.programsRepository.findOne({ where: { id } });
+    if (!program) throw new NotFoundException(`Program #${id} not found`);
+    if (program.coachId !== coachId) throw new ForbiddenException('Not your program');
+    if (program.status !== ProgramStatus.REJECTED_WITH_PROPOSAL) {
+      throw new ForbiddenException('No proposal to respond to');
+    }
+    if (accept) {
+      // Apply proposed schedule and approve
+      const formattedDays = program.proposedDays?.replace(/,/g, '/') || '';
+      program.schedule = `${formattedDays} ${program.proposedTime}`;
+      program.totalSlots = program.proposedSlots;
+      program.status = ProgramStatus.APPROVED;
+    } else {
+      program.status = ProgramStatus.REJECTED;
+    }
+    return this.programsRepository.save(program);
+  }
+
   // Approved programs visible to all gym members
   async findApprovedByGym(gymId: string): Promise<Program[]> {
     return this.programsRepository.find({
@@ -56,5 +97,78 @@ export class ProgramsService {
   // Coach views their own programs
   async findByCoach(coachId: string): Promise<Program[]> {
     return this.programsRepository.find({ where: { coachId } });
+  }
+
+  // Conflict detection
+  async checkConflicts(gymId: string, days: string, time: string, slots: number): Promise<{
+    hasConflict: boolean;
+    warnings: string[];
+  }> {
+    const warnings: string[] = [];
+
+    const gym = await this.gymsRepository.findOne({ where: { id: gymId } });
+    if (!gym) return { hasConflict: true, warnings: ['Gym not found'] };
+
+    // 1. Check operational days
+    const requestedDays = days.split(',').map(d => d.trim());
+    const gymDays = gym.operationalDays?.split(',').map(d => d.trim()) || [];
+    const invalidDays = requestedDays.filter(d => !gymDays.includes(d));
+    if (invalidDays.length > 0) {
+      warnings.push(`Gym is not operational on: ${invalidDays.join(', ')}`);
+    }
+
+    // 2. Check operational time
+    if (gym.openTime && gym.closeTime) {
+      // Convert "06:00 AM" to 24hr for comparison
+      const parseTime = (t: string) => {
+        const [time, period] = t.split(' ');
+        let [h] = time.split(':').map(Number);
+        if (period === 'PM' && h !== 12) h += 12;
+        if (period === 'AM' && h === 12) h = 0;
+        return h;
+      };
+      const reqHour = parseTime(time);
+      const [openHour] = gym.openTime.split(':').map(Number);
+      const [closeHour] = gym.closeTime.split(':').map(Number);
+      if (reqHour < openHour || reqHour >= closeHour) {
+        warnings.push(`Gym operates ${gym.openTime} - ${gym.closeTime}. Requested time ${time} is outside operational hours.`);
+      }
+    }
+
+    // 3. Check slot conflicts with approved programs
+    const approvedPrograms = await this.programsRepository.find({
+      where: { gymId, status: ProgramStatus.APPROVED },
+    });
+
+    let usedSlotsAtTime = 0;
+    for (const prog of approvedPrograms) {
+      if (!prog.schedule) continue;
+      const parts = prog.schedule.split(' ');
+      const progDays = parts[0]?.split('/') || [];
+      // const progTime = parts.slice(1).join(' ');
+      const progTime = parts[1] + ' ' + parts[2];
+      const hasOverlappingDay = requestedDays.some(d => progDays.includes(d));
+      const hasSameTime = progTime === time;
+      if (hasOverlappingDay && hasSameTime) {
+        usedSlotsAtTime += prog.totalSlots || 0;
+        warnings.push(`Conflict with "${prog.title}" on overlapping days at ${time}`);
+      }
+    }
+
+    // 4. Check capacity
+    if (gym.capacity) {
+      const totalAfterApproval = usedSlotsAtTime + slots;
+      if (totalAfterApproval > gym.capacity) {
+        warnings.push(`Capacity exceeded. Gym capacity: ${gym.capacity}, Already used: ${usedSlotsAtTime}, Requested: ${slots}, Total would be: ${totalAfterApproval}`);
+      }
+    }
+
+    return { hasConflict: warnings.length > 0, warnings };
+  }
+
+  async findOne(id: string): Promise<Program> {
+    const program = await this.programsRepository.findOne({ where: { id } });
+    if (!program) throw new NotFoundException(`Program #${id} not found`);
+    return program;
   }
 }

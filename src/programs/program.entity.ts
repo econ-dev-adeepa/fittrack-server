@@ -5,6 +5,9 @@ export enum ProgramStatus {
   PENDING_APPROVAL = 'PENDING_APPROVAL',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
+  REJECTED_WITH_PROPOSAL = 'REJECTED_WITH_PROPOSAL',
+  PROPOSAL_ACCEPTED = 'PROPOSAL_ACCEPTED',
+  PROPOSAL_REJECTED = 'PROPOSAL_REJECTED',
 }
 
 @Entity('programs')
@@ -36,14 +39,28 @@ export class Program {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Column({ nullable: true })
+  rejectionReason: string;
+  
+  @Column({ nullable: true })
+  totalSlots: number;
+
+  @Column({ nullable: true })
+  proposedDays: string; // admin's suggested days
+
+  @Column({ nullable: true })
+  proposedTime: string; // admin's suggested time
+
+  @Column({ nullable: true })
+  proposedSlots: number; // admin's suggested slots
+  
+
   // @Column({ nullable: true })
   // sessionsPerWeek: number;
 
   // @Column({ nullable: true })
   // sessionDuration: number; // in minutes
 
-  // @Column({ nullable: true })
-  // totalSlots: number;
 
   // @Column({ nullable: true })
   // difficulty: string; // BEGINNER, INTERMEDIATE, ADVANCED
