@@ -18,6 +18,10 @@ export class GymsService {
             description: createGymDto.description,
             phone: createGymDto.phone,
             createdByAdminId: adminId,
+            operationalDays: createGymDto.operationalDays,
+            openTime: createGymDto.openTime,
+            closeTime: createGymDto.closeTime,
+            capacity: createGymDto.capacity,
         })
 
         return this.gymsRepository.save(gym);

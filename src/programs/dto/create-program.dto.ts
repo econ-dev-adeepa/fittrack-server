@@ -16,7 +16,11 @@ export class CreateProgramDto {
   @IsString()
   @IsOptional()
   schedule?: string;
-
+  
+  @IsNumber()
+  @IsOptional()
+  totalSlots?: number;
+  
   // @IsNumber()
   // @IsOptional()
   // sessionsPerWeek?: number;
@@ -25,9 +29,6 @@ export class CreateProgramDto {
   // @IsOptional()
   // sessionDuration?: number;
 
-  // @IsNumber()
-  // @IsOptional()
-  // totalSlots?: number;
 
   // @IsString()
   // @IsOptional()
