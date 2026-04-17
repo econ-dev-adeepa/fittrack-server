@@ -75,15 +75,69 @@ export class ProgramsService {
     if (program.status !== ProgramStatus.REJECTED_WITH_PROPOSAL) {
       throw new ForbiddenException('No proposal to respond to');
     }
+
     if (accept) {
-      // Apply proposed schedule and approve
       const formattedDays = program.proposedDays?.replace(/,/g, '/') || '';
-      program.schedule = `${formattedDays} ${program.proposedTime}`;
+
+      // Extract original duration from existing schedule
+      // Original schedule format: "Mon/Wed/Fri 06:00 AM - 09:00 AM"
+      const originalSchedule = program.schedule || '';
+      const originalParts = originalSchedule.split(' ');
+      // Get start and end time from original: parts[1]="06:00" parts[2]="AM" parts[3]="-" parts[4]="09:00" parts[5]="AM"
+      const hasEndTime = originalParts.length >= 6 && originalParts[3] === '-';
+
+      let newSchedule: string;
+
+      if (hasEndTime) {
+        // Calculate duration from original schedule
+        const originalStart = `${originalParts[1]} ${originalParts[2]}`; // "06:00 AM"
+        const originalEnd = `${originalParts[4]} ${originalParts[5]}`;   // "09:00 AM"
+
+        // Parse to minutes
+        const parseToMinutes = (t: string): number => {
+          const [timePart, period] = t.split(' ');
+          let [h, m] = timePart.split(':').map(Number);
+          if (period === 'PM' && h !== 12) h += 12;
+          if (period === 'AM' && h === 12) h = 0;
+          return h * 60 + m;
+        };
+
+        const startMins = parseToMinutes(originalStart);
+        const endMins = parseToMinutes(originalEnd);
+        const durationMins = endMins - startMins;
+
+        // Calculate new end time from proposed start + original duration
+        const calculateEndTime = (startTime: string, durationMins: number): string => {
+          const parseToMinutes = (t: string): number => {
+            const [timePart, period] = t.split(' ');
+            let [h, m] = timePart.split(':').map(Number);
+            if (period === 'PM' && h !== 12) h += 12;
+            if (period === 'AM' && h === 12) h = 0;
+            return h * 60 + m;
+          };
+          const totalMins = parseToMinutes(startTime) + durationMins;
+          let endH = Math.floor(totalMins / 60) % 24;
+          const endM = totalMins % 60;
+          const period = endH >= 12 ? 'PM' : 'AM';
+          if (endH > 12) endH -= 12;
+          if (endH === 0) endH = 12;
+          return `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')} ${period}`;
+        };
+
+        const newEndTime = calculateEndTime(program.proposedTime, durationMins);
+        newSchedule = `${formattedDays} ${program.proposedTime} - ${newEndTime}`;
+      } else {
+        // No end time in original — just use proposed time as is
+        newSchedule = `${formattedDays} ${program.proposedTime}`;
+      }
+
+      program.schedule = newSchedule;
       program.totalSlots = program.proposedSlots;
       program.status = ProgramStatus.APPROVED;
     } else {
       program.status = ProgramStatus.REJECTED;
     }
+
     return this.programsRepository.save(program);
   }
 

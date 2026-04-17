@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { GymsService } from './gyms.service';
 import CreateGymDto from './dto/create-gym.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -30,5 +30,12 @@ export class GymsController {
     create(@Body() createGymDto: CreateGymDto, @Request() req: any) {
         const adminId = req.user.sub;
         return this.gymService.create(createGymDto, adminId);
+    }
+
+
+    @Get(':gymId/dashboard')
+    @Roles(UserRole.GYM_ADMIN)
+    getDashboard(@Param('gymId') gymId: string) {
+    return this.gymService.getDashboard(gymId);
     }
 }
